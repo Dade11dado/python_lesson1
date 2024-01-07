@@ -2,20 +2,38 @@ import functions
 import PySimpleGUI as psg
 
 label = psg.Text("Type in a todo")
-inputBox = psg.InputText(tooltip="Enter todo",key="todo")
+inputBox = psg.InputText(tooltip="Enter todo", key="todo_input")
 add_button = psg.Button("Add")
+list_box = psg.Listbox(values=functions.getTodos(),
+                       key="list_todo",
+                       enable_events=True,
+                       size=(45, 10))
+edit_buttom = psg.Button("Edit")
 
 window = psg.Window("My to-do List",
-                    layout=[[label], [inputBox, add_button]],
+                    layout=[[label], [inputBox, add_button], [list_box, edit_buttom]],
                     font=("Helvetica", 20))
 while True:
-    event,value = window.read()
+    event, value = window.read()
+    print(event)
+    print(value)
     match event:
         case "Add":
             todos = functions.getTodos()
-            new_todo = value["todo"] + '\n'
+            new_todo = value["todo_input"] + '\n'
             todos.append(new_todo)
             functions.writeTodos(todos)
+            window['list_todo'].update(values=todos)
+        case "Edit":
+            todo_selected = value['list_todo'][0]
+            new_todo = value['todo_input'] + '\n'
+            todos = functions.getTodos()
+            index = todos.index(todo_selected)
+            todos[index] = new_todo
+            functions.writeTodos(todos)
+            window['list_todo'].update(values=todos)
+        case 'list_todo':
+            window['todo_input'].update(value=value['list_todo'][0])
         case psg.WIN_CLOSED:
             break
 window.close()
