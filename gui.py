@@ -1,5 +1,10 @@
 import functions
 import PySimpleGUI as psg
+import os
+
+if not os.path.exists('todos.txt'):
+    with open('todos.txt','w'):
+        pass
 
 label = psg.Text("Type in a todo")
 inputBox = psg.InputText(tooltip="Enter todo", key="todo_input")
@@ -29,21 +34,27 @@ while True:
             functions.writeTodos(todos)
             window['list_todo'].update(values=todos)
         case "Edit":
-            todo_selected = value['list_todo'][0]
-            new_todo = value['todo_input'] + '\n'
-            todos = functions.getTodos()
-            index = todos.index(todo_selected)
-            todos[index] = new_todo
-            functions.writeTodos(todos)
-            window['list_todo'].update(values=todos)
+            try:
+                todo_selected = value['list_todo'][0]
+                new_todo = value['todo_input'] + '\n'
+                todos = functions.getTodos()
+                index = todos.index(todo_selected)
+                todos[index] = new_todo
+                functions.writeTodos(todos)
+                window['list_todo'].update(values=todos)
+            except IndexError:
+                psg.popup("Seleziona un elemento prima di modificarlo", font=("Helvetica",20))
         case 'list_todo':
             window['todo_input'].update(value=value['list_todo'][0])
         case "Complete":
-            todo_selected = value['list_todo'][0]
-            todos = functions.getTodos()
-            todos.remove(todo_selected)
-            functions.writeTodos(todos)
-            window['list_todo'].update(values=todos)
+            try:
+                todo_selected = value['list_todo'][0]
+                todos = functions.getTodos()
+                todos.remove(todo_selected)
+                functions.writeTodos(todos)
+                window['list_todo'].update(values=todos)
+            except IndexError:
+                psg.popup("Seleziona un elemento prima di completarlo",font=("Helvetica",20))
         case 'Exit':
             break
         case psg.WIN_CLOSED:
